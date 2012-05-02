@@ -35,6 +35,10 @@ Usage
 
       def self.perform(args = {})
         (...)
+
+        logger.info('it works!')
+
+        (...)
       end
     end
 
