@@ -55,6 +55,14 @@ describe Resque::Plugins::Logger do
       Logger.should_not_receive(:new)
       ResqueWorker.perform
     end
+
+    it 'accepts a logger without additional args' do
+      config.delete :class_args
+
+      Logger.should_receive(:new).with(file_path).and_return(logger_mock)
+
+      ResqueWorker.perform
+    end
   end
 
   describe 'setting logger options from configuration' do
