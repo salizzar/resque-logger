@@ -2,11 +2,7 @@
 
 module Resque
   module Plugins
-    autoload :Logger,     'resque/plugins/logger'
-
-    module Logger
-      autoload :Factory,  'resque/plugins/logger/factory'
-    end
+    autoload :Logger, 'resque/plugins/logger'
   end
 end
 
