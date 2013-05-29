@@ -65,6 +65,26 @@ describe Resque::Plugins::Logger do
     end
   end
 
+  describe 'explicitly setting the log name' do
+    before(:each) do
+      @base = "hey_a_log_file.log"
+      @file_path = File.join config[:folder], @base
+      ResqueWorker.instance_variable_set("@log_name", @base)
+      config.delete :level
+      config.delete :formatter
+    end
+    after(:each) do
+      ResqueWorker.instance_variable_set("@log_name", nil)
+    end
+
+    it 'uses the log_name method' do
+      config.delete :class_args
+      Logger.should_receive(:new).with(@file_path).and_return(logger_mock)
+
+      ResqueWorker.perform
+    end
+  end
+
   describe 'setting logger options from configuration' do
     before :each do
       Logger.stub(:new).and_return(logger_mock)

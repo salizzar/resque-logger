@@ -11,7 +11,6 @@ module Resque
       end
 
       private
-
       #
       # Creates a new instance of logger given a queue name, retrieving
       # configuration from Resque.logger.
@@ -22,7 +21,8 @@ module Resque
         class_name = config[:class_name]
         class_args = config[:class_args]
 
-        file_path = File.join log_path, "#{@queue}.log"
+        file_basename = @log_name || "#{@queue}.log"
+        file_path = File.join log_path, file_basename
 
         logger = class_name.new file_path, *class_args
         logger.level = config[:level] if config[:level]
