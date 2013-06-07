@@ -32,6 +32,7 @@ Usage
       extend Resque::Plugins::Logger
 
       @queue = :my_killer_worker_job
+      @log_name = "my_killer_log_name.log" # Optional - defaults to using the queue name.
 
       def self.perform(args = {})
         (...)
