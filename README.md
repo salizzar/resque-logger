@@ -20,7 +20,7 @@ Configuration
       formatter:  Logger::Formatter.new,    # optional
     }
 
-    Resque.logger = config
+    Resque.logger_config = config
 
 Usage
 =====
