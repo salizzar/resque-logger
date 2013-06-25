@@ -16,7 +16,7 @@ module Resque
       # configuration from Resque.logger.
       #
       def create_logger
-        config = Resque.logger
+        config = Resque.logger_config
         log_path = config[:folder]
         class_name = config[:class_name]
         class_args = config[:class_args]

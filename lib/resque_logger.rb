@@ -5,8 +5,8 @@ require "resque/setup"
 
 module ResqueLogger
   module ClassMethods
-    def logger
-      @logger
+    def logger_config
+      @logger_config
     end
 
     #
@@ -21,10 +21,10 @@ module ResqueLogger
     #
     # Hash keys will be symbols to work.
     #
-    def logger=(options)
+    def logger_config=(options)
       check_logger_args! options
 
-      @logger = options
+      @logger_config = options
     end
 
     private

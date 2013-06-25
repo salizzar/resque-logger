@@ -11,7 +11,7 @@ describe ResqueLogger do
 
       error = ArgumentError.new 'Folder must be supplied'
 
-      expect { Resque.logger = config }.to raise_error(error.class, error.message)
+      expect { Resque.logger_config = config }.to raise_error(error.class, error.message)
     end
 
     it 'raises an error if class name is not found' do
@@ -19,11 +19,16 @@ describe ResqueLogger do
 
       error = ArgumentError.new 'Logger must be supplied'
 
-      expect { Resque.logger = config }.to raise_error(error.class, error.message)
+      expect { Resque.logger_config = config }.to raise_error(error.class, error.message)
     end
 
     it 'not raises otherwise' do
-      expect { Resque.logger = config }.to_not raise_error
+      expect { Resque.logger_config = config }.to_not raise_error
+    end
+
+    it 'does not collide with the Resque.logger namespace' do
+      Resque.logger_config = config
+      expect { Resque.logger.info("Test message") }.to_not raise_error
     end
   end
 end

@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Resque::Plugins::Logger do
   @worker_queue = :worker_queue
 
-  class ResqueWorker 
+  class ResqueWorker
     extend Resque::Plugins::Logger
 
     @queue = @worker_queue
@@ -29,7 +29,7 @@ describe Resque::Plugins::Logger do
   end
 
   before :each do
-    Resque.stub(:logger).and_return(config)
+    Resque.stub(:logger_config).and_return(config)
     logger_mock.should_receive(:info).any_number_of_times
 
     # FIXME: find a better way to test
