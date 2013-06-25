@@ -101,9 +101,29 @@ describe Resque::Plugins::Logger do
         end
         @file_path = File.join config[:folder], "another_queue.log"
       end
+      after(:each) do
+        ResqueWorker.class_eval do
+          class << self
+            remove_method :queue
+          end
+        end
+      end
 
       it 'uses the correct log name' do
         Logger.should_receive(:new).with(@file_path).and_return(logger_mock)
+
+        ResqueWorker.perform
+      end
+    end
+
+    context 'no queue name is specified' do
+      before do
+        ResqueWorker.instance_variable_set(:@queue, nil)
+        Resque.queue_from_class(ResqueWorker).should be_false
+      end
+      it 'uses a default log name' do
+        default_file_path = File.join(config[:folder], Resque::Plugins::Logger::DEFAULT_LOG_NAME)
+        Logger.should_receive(:new).with(default_file_path).and_return(logger_mock)
 
         ResqueWorker.perform
       end
