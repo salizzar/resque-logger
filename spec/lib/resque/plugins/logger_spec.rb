@@ -3,15 +3,17 @@
 require 'spec_helper'
 
 describe Resque::Plugins::Logger do
-  @worker_queue = :worker_queue
+  before do
+    @worker_queue = :worker_queue
 
-  class ResqueWorker
-    extend Resque::Plugins::Logger
+    class ResqueWorker
+      extend Resque::Plugins::Logger
 
-    @queue = @worker_queue
+      @queue = @worker_queue
 
-    def self.perform(args = {})
-      logger.info 'It works!'
+      def self.perform(args = {})
+        logger.info 'It works!'
+      end
     end
   end
 
@@ -34,6 +36,7 @@ describe Resque::Plugins::Logger do
 
     # FIXME: find a better way to test
     ResqueWorker.instance_variable_set '@logger', nil
+    ResqueWorker.instance_variable_set(:@queue, @worker_queue)
   end
 
   describe 'getting a logger based on queue' do
@@ -62,6 +65,68 @@ describe Resque::Plugins::Logger do
       Logger.should_receive(:new).with(file_path).and_return(logger_mock)
 
       ResqueWorker.perform
+    end
+  end
+
+  describe 'log file auto-naming' do
+    before(:each) do
+      config.delete :class_args
+      config.delete :level
+      config.delete :formatter
+    end
+
+    context 'class instance variable is set' do
+      before(:each) do
+        ResqueWorker.instance_variable_set(:@queue, "custom_queue")
+        @file_path = File.join config[:folder], "custom_queue.log"
+      end
+      after(:each) do
+        ResqueWorker.instance_variable_set(:@queue, @worker_queue)
+      end
+
+      it 'uses the correct log name' do
+        Logger.should_receive(:new).with(@file_path).and_return(logger_mock)
+
+        ResqueWorker.perform
+      end
+    end
+
+    context 'class queue method exists' do
+      before(:each) do
+        ResqueWorker.instance_variable_set(:@queue, nil)
+        ResqueWorker.class_eval do
+          def self.queue
+            "another_queue"
+          end
+        end
+        @file_path = File.join config[:folder], "another_queue.log"
+      end
+      after(:each) do
+        ResqueWorker.class_eval do
+          class << self
+            remove_method :queue
+          end
+        end
+      end
+
+      it 'uses the correct log name' do
+        Logger.should_receive(:new).with(@file_path).and_return(logger_mock)
+
+        ResqueWorker.perform
+      end
+    end
+
+    context 'no queue name is specified' do
+      before do
+        ResqueWorker.instance_variable_set(:@queue, nil)
+        Resque.queue_from_class(ResqueWorker).should be_false
+      end
+      it 'uses a default log name' do
+        default_file_path = File.join(config[:folder], Resque::Plugins::Logger::DEFAULT_LOG_NAME)
+        Logger.should_receive(:new).with(default_file_path).and_return(logger_mock)
+
+        ResqueWorker.perform
+      end
     end
   end
 

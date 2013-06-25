@@ -3,6 +3,7 @@
 module Resque
   module Plugins
     module Logger
+      DEFAULT_LOG_NAME = "worker.log"
       #
       # Returns a logger instance based on queue name.
       #
@@ -21,7 +22,12 @@ module Resque
         class_name = config[:class_name]
         class_args = config[:class_args]
 
-        file_basename = @log_name || "#{@queue}.log"
+        file_basename = @log_name ||
+          (if (queue_name = Resque.queue_from_class(self))
+            "#{queue_name}.log"
+          else
+            DEFAULT_LOG_NAME
+          end)
         file_path = File.join log_path, file_basename
 
         logger = class_name.new file_path, *class_args
